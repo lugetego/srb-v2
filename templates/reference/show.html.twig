@@ -272,7 +272,7 @@ body { background: var(--srb-bg); font-family: 'Source Sans 3', system-ui, sans-
         </a>
         {% endif %}
         {% if ref.file %}
-        <a href="/uploads/{{ ref.type }}/{{ ref.file }}" target="_blank" class="srb-ext-link pdf">
+        <a href="{{ asset('uploads/' ~ ref.type ~ '/' ~ ref.file) }}" target="_blank" class="srb-ext-link pdf">
             <i class="bi bi-file-pdf"></i> PDF
         </a>
         {% endif %}

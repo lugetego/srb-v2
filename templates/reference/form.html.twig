@@ -243,7 +243,7 @@ body { background: var(--srb-bg); }
             {% if ref.file %}
             <div class="srb-c-12 srb-file-hint">
                 Archivo actual:
-                <a href="/uploads/{{ ref.type }}/{{ ref.file }}" target="_blank" rel="noopener"
+                <a href="{{ asset('uploads/' ~ ref.type ~ '/' ~ ref.file) }}" target="_blank" rel="noopener"
                    style="color:var(--srb-accent);text-decoration:none;">
                     <i class="bi bi-file-pdf"></i> {{ ref.file }}
                 </a>
