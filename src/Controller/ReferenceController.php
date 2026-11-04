@@ -52,7 +52,7 @@ class ReferenceController extends AbstractController
                 'bookTitle' => $ref->getBookTitle() ?? '',
                 'editor'    => $ref->getEditor() ?? '',
                 'school'    => $ref->getSchool() ?? '',
-                'url_show'  => $this->generateUrl('app_reference_show', ['id' => $ref->getId()]),
+                'url_show'  => $this->generateUrl('app_reference_show', ['id' => $ref->getId(), 'slug' => $ref->getSlug()]),
             ];
         }
 
@@ -64,8 +64,8 @@ class ReferenceController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/show', name: 'app_reference_show', methods: ['GET'])]
-    public function show(Referencia $referencia): Response
+    #[Route('/{id}-{slug}', name: 'app_reference_show', methods: ['GET'])]
+    public function show(Referencia $referencia, string $slug = ''): Response
     {
         return $this->render('reference/show.html.twig', ['ref' => $referencia]);
     }
@@ -103,7 +103,7 @@ class ReferenceController extends AbstractController
             $this->sendNewReferenceNotification($ref, $mailer);
 
             $this->addFlash('success', 'Reference saved.');
-            return $this->redirectToRoute('app_reference_show', ['id' => $ref->getId()]);
+            return $this->redirectToRoute('app_reference_show', ['id' => $ref->getId(), 'slug' => $ref->getSlug()]);
         }
 
         return $this->render('reference/form.html.twig', ['form' => $form, 'ref' => $ref, 'edit' => false]);
@@ -146,7 +146,7 @@ class ReferenceController extends AbstractController
 
             $em->flush();
             $this->addFlash('success', 'Reference updated.');
-            return $this->redirectToRoute('app_reference_show', ['id' => $ref->getId()]);
+            return $this->redirectToRoute('app_reference_show', ['id' => $ref->getId(), 'slug' => $ref->getSlug()]);
         }
 
         return $this->render('reference/form.html.twig', ['form' => $form, 'ref' => $ref, 'edit' => true]);
@@ -172,7 +172,7 @@ class ReferenceController extends AbstractController
     private function sendNewReferenceNotification(Referencia $ref, MailerInterface $mailer): void
     {
         try {
-            $url     = $this->generateUrl('app_reference_show', ['id' => $ref->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+            $url     = $this->generateUrl('app_reference_show', ['id' => $ref->getId(), 'slug' => $ref->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL);
             $editUrl = $this->generateUrl('app_reference_edit', ['id' => $ref->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
             $body = $this->renderView('emails/new_reference.txt.twig', [

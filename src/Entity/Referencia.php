@@ -6,6 +6,7 @@ use App\Repository\ReferenciaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReferenciaRepository::class)]
@@ -305,6 +306,12 @@ class Referencia
     public function getYear(): ?string
     {
         return $this->type === 'preprint' ? $this->yearPreprint : $this->yearPub;
+    }
+
+    public function getSlug(): string
+    {
+        $title = $this->title ?? '';
+        return (new AsciiSlugger())->slug(mb_substr($title, 0, 80))->lower()->toString();
     }
 
     public function __toString(): string { return $this->title ?? ''; }

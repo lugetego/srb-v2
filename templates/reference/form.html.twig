@@ -164,7 +164,7 @@ body { background: var(--srb-bg); }
 
     <div class="srb-form-header">
         <h1 class="srb-form-title">{{ edit ? 'Editar referencia' : 'Nueva referencia' }}</h1>
-        <a href="{{ ref.id ? path('app_reference_show', {id: ref.id}) : path('app_reference_index') }}" class="srb-back">
+        <a href="{{ ref.id ? path('app_reference_show', {id: ref.id, slug: ref.slug}) : path('app_reference_index') }}" class="srb-back">
             <i class="bi bi-arrow-left"></i> Cancelar
         </a>
     </div>
@@ -268,7 +268,7 @@ body { background: var(--srb-bg); }
         <button type="submit" class="srb-btn-primary">
             <i class="bi bi-save"></i> Guardar
         </button>
-        <a href="{{ ref.id ? path('app_reference_show', {id: ref.id}) : path('app_reference_index') }}"
+        <a href="{{ ref.id ? path('app_reference_show', {id: ref.id, slug: ref.slug}) : path('app_reference_index') }}"
            class="srb-btn-cancel">Cancelar</a>
     </div>
 

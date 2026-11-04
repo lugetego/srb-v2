@@ -180,7 +180,7 @@ table#pubsTable tbody td { padding: 12px 10px 12px 0 !important; border: none !i
         {% endif %}
         <tr>
             <td>
-                <a href="{{ path('app_reference_show', {id: ref.id}) }}" class="pub-title">{{ ref.title }}</a>
+                <a href="{{ path('app_reference_show', {id: ref.id, slug: ref.slug}) }}" class="pub-title">{{ ref.title }}</a>
                 {% if bparts|length > 0 %}
                 <p class="pub-biblio">{{ bparts|join(', ') }}</p>
                 {% endif %}
