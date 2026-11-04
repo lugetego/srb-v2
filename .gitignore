@@ -13,6 +13,10 @@
 /public/uploads/*
 !/public/uploads/.htaccess
 
+# Scripts y dumps de migración (contienen emails reales)
+migrate-to-v2.sql
+*.sql
+
 # IDEs, herramientas de desarrollo y sistema operativo
 .claude/
 .idea/
