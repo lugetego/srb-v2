@@ -311,7 +311,14 @@ class Referencia
     public function getSlug(): string
     {
         $title = $this->title ?? '';
-        return (new AsciiSlugger())->slug(mb_substr($title, 0, 80))->lower()->toString();
+        $slug  = (new AsciiSlugger())->slug($title)->lower()->toString();
+        if (mb_strlen($slug) <= 80) {
+            return $slug;
+        }
+        // Truncar en el último guión antes del límite de 80 chars
+        $truncated = mb_substr($slug, 0, 80);
+        $lastDash  = mb_strrpos($truncated, '-');
+        return $lastDash > 20 ? mb_substr($truncated, 0, $lastDash) : $truncated;
     }
 
     public function __toString(): string { return $this->title ?? ''; }
