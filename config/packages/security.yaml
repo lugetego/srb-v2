@@ -43,7 +43,7 @@ security:
         - { path: ^/busqueda,            roles: PUBLIC_ACCESS }
         - { path: ^/refs$,               roles: PUBLIC_ACCESS }
         - { path: ^/refs/data,           roles: PUBLIC_ACCESS }
-        - { path: ^/refs/\d+/show$,      roles: PUBLIC_ACCESS }
+        - { path: ^/refs/\d+-,            roles: PUBLIC_ACCESS }
         - { path: ^/authors$,            roles: PUBLIC_ACCESS }
         - { path: ^/authors/\d+/show$,   roles: PUBLIC_ACCESS }
 
