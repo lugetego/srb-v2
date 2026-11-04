@@ -33,9 +33,18 @@ class CreateUserCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $user = new User();
-        $user->setUsername($input->getArgument('username'));
-        $user->setEmail($input->getArgument('email'));
+        $username = $input->getArgument('username');
+        $existing = $this->em->getRepository(User::class)->findOneBy(['username' => $username]);
+
+        if ($existing) {
+            $user = $existing;
+            $output->writeln('<comment>User exists, updating password' . ($input->getOption('admin') ? ' and roles' : '') . ': ' . $username . '</comment>');
+        } else {
+            $user = new User();
+            $user->setUsername($username);
+        }
+
+        $user->setEmail($input->getArgument('email') ?: $user->getEmail());
         $user->setPassword($this->hasher->hashPassword($user, $input->getArgument('password')));
 
         if ($input->getOption('admin')) {
@@ -45,7 +54,7 @@ class CreateUserCommand extends Command
         $this->em->persist($user);
         $this->em->flush();
 
-        $output->writeln('<info>User created: ' . $user->getUsername() . '</info>');
+        $output->writeln('<info>User ' . ($existing ? 'updated' : 'created') . ': ' . $user->getUsername() . '</info>');
         return Command::SUCCESS;
     }
 }
