@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login — SRB{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center mt-5">
+<div class="col-md-4">
+    <div class="card shadow-sm">
+        <div class="card-header fw-semibold">Login</div>
+        <div class="card-body">
+            {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+            <form method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="_username" class="form-control"
+                           value="{{ last_username }}" autocomplete="username" autofocus required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="_password" class="form-control"
+                           autocomplete="current-password" required>
+                </div>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

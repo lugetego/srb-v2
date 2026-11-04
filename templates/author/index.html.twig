@@ -1,0 +1,223 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Autores — SRB CCM UNAM{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root {
+    --srb-bg:      #ffffff;
+    --srb-surf:    #ffffff;
+    --srb-surf2:   #f6f7f8;
+    --srb-border:  #e0e2e6;
+    --srb-borderl: #eceef1;
+    --srb-t1:      #1a1a1a;
+    --srb-t2:      #555555;
+    --srb-t3:      #999999;
+    --srb-accent:  #1b4fa8;
+    --srb-accent2: #144090;
+    --srb-accbg:   #e8f0fb;
+    --srb-green:   #1a6e46;
+}
+
+body { background: var(--srb-bg); font-family: 'Source Sans 3', system-ui, sans-serif; }
+.srb-page { max-width: 1080px; margin: 0 auto; padding: 0 20px 60px; }
+
+.srb-page-header {
+    padding: 24px 0 20px;
+    border-bottom: 1px solid var(--srb-border);
+    margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.srb-page-title {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 1.5rem; font-weight: 700; color: var(--srb-t1);
+}
+.srb-page-action {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 16px; background: var(--srb-accent); color: #fff;
+    border-radius: 7px; font-size: .9rem; font-weight: 500;
+    text-decoration: none;
+}
+.srb-page-action:hover { background: var(--srb-accent2); color: #fff; }
+
+/* ── DataTable overrides ── */
+#authorsTable_wrapper { font-size: .9375rem; }
+#authorsTable_wrapper .dataTables_length,
+#authorsTable_wrapper .dataTables_filter { font-size: .82rem; color: var(--srb-t3); }
+#authorsTable_wrapper .dataTables_filter input {
+    padding: 4px 10px;
+    border: 1px solid var(--srb-border);
+    border-radius: 6px;
+    background: var(--srb-surf2);
+    color: var(--srb-t1);
+    font-size: .82rem;
+    outline: none;
+    margin-left: 4px;
+}
+#authorsTable_wrapper .dataTables_filter input:focus {
+    border-color: var(--srb-accent);
+    box-shadow: 0 0 0 2px var(--srb-accbg);
+}
+#authorsTable_wrapper .dataTables_info { font-size: .8rem; color: var(--srb-t3); }
+#authorsTable_wrapper .dataTables_paginate { font-size: .875rem; }
+#authorsTable_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 5px !important; border: 1px solid var(--srb-border) !important;
+    color: var(--srb-t2) !important; margin: 0 1px !important;
+    padding: 2px 8px !important;
+}
+#authorsTable_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--srb-accent) !important;
+    border-color: var(--srb-accent) !important;
+    color: #fff !important; font-weight: 600 !important;
+}
+#authorsTable_wrapper .dataTables_paginate .paginate_button:not(.disabled):hover {
+    background: var(--srb-accbg) !important;
+    border-color: var(--srb-accent) !important;
+    color: var(--srb-accent) !important;
+}
+
+/* ── Table ── */
+table#authorsTable { border: none !important; width: 100% !important; }
+table#authorsTable thead th {
+    font-size: .72rem; font-weight: 700; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--srb-t3);
+    border-bottom: 2px solid var(--srb-border) !important;
+    border-top: none !important;
+    padding: 8px 10px 8px 0 !important;
+    background: transparent !important;
+}
+table#authorsTable tbody tr { border-bottom: 1px solid var(--srb-borderl) !important; }
+table#authorsTable tbody tr:last-child { border-bottom: none !important; }
+table#authorsTable tbody td {
+    padding: 12px 10px 12px 0 !important;
+    border: none !important;
+    vertical-align: middle;
+}
+
+.au-name {
+    font-size: .9rem; font-weight: 500; color: var(--srb-accent);
+    text-decoration: none; display: inline-block;
+}
+.au-name:hover { color: var(--srb-accent2); text-decoration: underline; }
+.au-alias { font-size: .8rem; color: var(--srb-t3); margin-top: 1px; }
+.au-count { vertical-align: middle; }
+.au-type-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.au-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 20px;
+    font-size: .72rem; font-weight: 600; white-space: nowrap;
+}
+.au-chip-article      { background: #e8f0fb; color: #1b4fa8; }
+.au-chip-preprint     { background: #f3f0ff; color: #6d28d9; }
+.au-chip-book         { background: #fef3c7; color: #b45309; }
+.au-chip-incollection { background: #e0f7fa; color: #0e7490; }
+.au-chip-inproceedings{ background: #ecfdf5; color: #065f46; }
+.au-chip-proceedings  { background: #fce7f3; color: #be185d; }
+.au-chip-thesis       { background: #fff4ee; color: #9a3412; }
+.au-chip-misc         { background: #f0f0f0; color: #666; }
+.au-chip-default      { background: #f0f0f0; color: #555; }
+.au-actions { white-space: nowrap; }
+.au-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 1px solid var(--srb-border);
+    color: var(--srb-t2); text-decoration: none;
+    font-size: .875rem; transition: background .12s, color .12s;
+    margin-left: 4px;
+}
+.au-btn:hover { background: var(--srb-accbg); color: var(--srb-accent); border-color: var(--srb-accent); }
+</style>
+{% endblock %}
+
+{% set typeLabels = {
+    'article':       'Article',
+    'preprint':      'Preprint',
+    'book':          'Book',
+    'incollection':  'Incollection',
+    'inproceedings': 'Inproceedings',
+    'proceedings':   'Proceedings',
+    'thesis':        'Thesis',
+    'misc':          'Misc',
+} %}
+
+{% block body %}
+<div class="srb-page">
+
+    <header class="srb-page-header">
+        <h1 class="srb-page-title">Autores</h1>
+        {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_author_new') }}" class="srb-page-action">
+            <i class="bi bi-plus-circle"></i> Nuevo autor
+        </a>
+        {% endif %}
+    </header>
+
+    <table id="authorsTable">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Publicaciones</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for author in authors %}
+        {% set typeCounts = {} %}
+        {% for ref in author.publications %}
+            {% set t = ref.type ?? 'misc' %}
+            {% set typeCounts = typeCounts|merge({(t): (typeCounts[t] ?? 0) + 1}) %}
+        {% endfor %}
+        <tr>
+            <td>
+                <a href="{{ path('app_author_show', {id: author.id}) }}" class="au-name">{{ author.name }}</a>
+                {% if author.alias %}
+                <div class="au-alias">{{ author.alias|u.truncate(90, '…') }}</div>
+                {% endif %}
+            </td>
+            <td class="au-count">
+                <a href="{{ path('app_author_show', {id: author.id}) }}" style="text-decoration:none;">
+                    <div class="au-type-chips">
+                    {% for type, count in typeCounts %}
+                    <span class="au-chip au-chip-{{ type in typeLabels|keys ? type : 'default' }}">
+                        {{ typeLabels[type] ?? type }} {{ count }}
+                    </span>
+                    {% endfor %}
+                    </div>
+                </a>
+            </td>
+            <td class="au-actions">
+                {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_author_edit', {id: author.id}) }}" class="au-btn" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(function () {
+    $('#authorsTable').DataTable({
+        order: [[0, 'asc']],
+        pageLength: 10,
+        dom: '<"d-flex justify-content-between align-items-center mb-2"lf>t<"d-flex justify-content-between align-items-center mt-2"ip>',
+        language: {
+            search: 'Filtrar:',
+            lengthMenu: 'Mostrar _MENU_',
+            info: '_START_–_END_ de _TOTAL_',
+            infoEmpty: 'Sin registros',
+            zeroRecords: 'Sin resultados',
+            paginate: { first: '«', last: '»', next: '›', previous: '‹' },
+        },
+        columnDefs: [{ orderable: false, targets: [1, 2] }],
+    });
+});
+</script>
+{% endblock %}

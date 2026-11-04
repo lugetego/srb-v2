@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}SRB — Sistema de Referencias Bibliográficas{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    {% block stylesheets %}{% endblock %}
+    <style>
+        /* ── Global ── */
+        body {
+            background: #ffffff;
+            font-family: 'Source Sans 3', system-ui, sans-serif;
+            color: #1a1a1a;
+        }
+
+        /* ── Navbar ── */
+        .srb-nav {
+            background: #ffffff;
+            border-bottom: 1px solid #e0e2e6;
+            padding: 0 20px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            margin-bottom: 0;
+        }
+        .srb-nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .srb-nav-logo-img {
+            height: 36px;
+            width: auto;
+            display: block;
+        }
+        .srb-nav-unam {
+            height: 44px;
+            width: auto;
+            display: block;
+        }
+        .srb-nav-sep {
+            width: 1px;
+            height: 32px;
+            background: #e0e2e6;
+            flex-shrink: 0;
+            margin: 0 4px;
+        }
+        .srb-nav-acro {
+            display: inline-block;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            color: #fff;
+            background: #1b4fa8;
+            border-radius: 4px;
+            padding: 1px 6px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        .srb-nav-name {
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: #1a1a1a;
+            vertical-align: middle;
+        }
+        .srb-nav-sub {
+            font-size: 10px;
+            color: #999;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+        .srb-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex: 1;
+        }
+        .srb-nav-link {
+            font-size: 16px;
+            color: #555;
+            text-decoration: none;
+            padding: 6px 11px;
+            border-radius: 6px;
+            transition: background .12s, color .12s;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+        .srb-nav-link:hover { background: #f2f4f7; color: #1a1a1a; }
+        .srb-nav-link.active { color: #1b4fa8; font-weight: 500; background: #e8f0fb; }
+        .srb-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .srb-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            background: #1b4fa8;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+        .srb-nav-btn:hover { background: #144090; color: #fff; }
+        .srb-nav-user {
+            font-size: 14px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .srb-nav-dropdown {
+            position: relative;
+        }
+        .srb-nav-dropdown-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border: 1px solid #e0e2e6;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 14px;
+            color: #1a1a1a;
+            cursor: pointer;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+        .srb-nav-dropdown-btn:hover { background: #f6f7f8; }
+        .srb-nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 4px);
+            background: #fff;
+            border: 1px solid #e0e2e6;
+            border-radius: 8px;
+            min-width: 160px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.08);
+            padding: 4px 0;
+            z-index: 300;
+        }
+        .srb-nav-dropdown:hover .srb-nav-dropdown-menu { display: block; }
+        .srb-nav-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            font-size: 14px;
+            color: #333;
+            text-decoration: none;
+        }
+        .srb-nav-dropdown-item:hover { background: #f6f7f8; }
+        .srb-nav-divider { border-top: 1px solid #eceef1; margin: 4px 0; }
+
+        /* Toggler for mobile */
+        .srb-nav-toggler {
+            display: none;
+            background: none;
+            border: 1px solid #e0e2e6;
+            border-radius: 6px;
+            padding: 5px 8px;
+            cursor: pointer;
+            color: #555;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .srb-nav-links, .srb-nav-right { display: none; }
+            .srb-nav-toggler { display: flex; align-items: center; }
+        }
+        @media (max-width: 540px) {
+            .srb-nav-name { display: none; }
+        }
+
+        /* Mobile nav menu */
+        .srb-mobile-menu {
+            display: none;
+            background: #fff;
+            border-bottom: 1px solid #e0e2e6;
+            box-shadow: 0 4px 12px rgba(0,0,0,.07);
+            position: sticky;
+            top: 54px;
+            z-index: 199;
+            padding: 4px 0 8px;
+        }
+        .srb-mobile-menu.open { display: block; }
+        .srb-mobile-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 20px;
+            font-size: 15px;
+            font-family: 'Source Sans 3', sans-serif;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #eceef1;
+        }
+        .srb-mobile-link:last-child { border-bottom: none; }
+        .srb-mobile-link:hover { background: #f6f7f8; }
+        .srb-mobile-link.active { color: #1b4fa8; font-weight: 500; }
+        .srb-mobile-link.accent { color: #1b4fa8; }
+        .srb-mobile-link.muted  { color: #999; }
+
+        /* ── Misc ── */
+        .badge-type { font-size: 0.75em; }
+        .ref-title { font-size: 1.05rem; font-weight: 500; }
+        .field-group { display: none; }
+        .field-group.active { display: block; }
+
+        /* ── Content wrapper ── */
+        .srb-content { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    </style>
+</head>
+<body>
+
+<nav class="srb-nav">
+    <a class="srb-nav-brand" href="{{ path('app_home') }}">
+        <img src="/images/unam-escudo.png" alt="UNAM" class="srb-nav-unam">
+        <div class="srb-nav-sep"></div>
+        <img src="/images/ccm-logo.png" alt="Centro de Ciencias Matemáticas" class="srb-nav-logo-img">
+        <div class="srb-nav-sep"></div>
+        <div>
+            <span class="srb-nav-acro">SRB</span>
+            <span class="srb-nav-name">Sistema de Referencias Bibliográficas</span>
+        </div>
+    </a>
+
+    <div class="srb-nav-links">
+        <a class="srb-nav-link {% if app.request.attributes.get('_route') starts with 'app_reference' %}active{% endif %}"
+           href="{{ path('app_reference_index') }}">Referencias</a>
+        <a class="srb-nav-link {% if app.request.attributes.get('_route') == 'app_search' %}active{% endif %}"
+           href="{{ path('app_search') }}">Búsqueda avanzada</a>
+        <a class="srb-nav-link {% if app.request.attributes.get('_route') starts with 'app_author' %}active{% endif %}"
+           href="{{ path('app_author_index') }}">Autores</a>
+        {% if is_granted('ROLE_USER') %}
+        <a class="srb-nav-link" href="{{ path('app_reference_new') }}">
+            <i class="bi bi-plus-circle"></i> Nueva referencia
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="srb-nav-right">
+        {% if is_granted('ROLE_USER') %}
+        <div class="srb-nav-dropdown">
+            <button class="srb-nav-dropdown-btn">
+                <i class="bi bi-person-circle"></i>
+                {{ app.user.username }}
+                <i class="bi bi-chevron-down" style="font-size:.65rem"></i>
+            </button>
+            <div class="srb-nav-dropdown-menu">
+                {% if is_granted('ROLE_ADMIN') %}
+                <a class="srb-nav-dropdown-item" href="{{ path('app_author_new') }}">
+                    <i class="bi bi-person-plus"></i> Agregar autor
+                </a>
+                <div class="srb-nav-divider"></div>
+                {% endif %}
+                <a class="srb-nav-dropdown-item" href="{{ path('app_logout') }}">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <a class="srb-nav-btn" href="{{ path('app_login') }}">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+        </a>
+        {% endif %}
+    </div>
+
+    <button class="srb-nav-toggler" id="srbToggler" aria-label="Menú" aria-expanded="false">
+        <i class="bi bi-list" style="font-size:1.3rem"></i>
+    </button>
+</nav>
+
+{# ── Mobile menu (shown via JS on mobile) ── #}
+<div class="srb-mobile-menu" id="srbMobileMenu">
+    <a class="srb-mobile-link {% if app.request.attributes.get('_route') starts with 'app_reference' %}active{% endif %}"
+       href="{{ path('app_reference_index') }}">
+        <i class="bi bi-journals"></i> Referencias
+    </a>
+    <a class="srb-mobile-link {% if app.request.attributes.get('_route') == 'app_search' %}active{% endif %}"
+       href="{{ path('app_search') }}">
+        <i class="bi bi-search"></i> Búsqueda avanzada
+    </a>
+    <a class="srb-mobile-link {% if app.request.attributes.get('_route') starts with 'app_author' %}active{% endif %}"
+       href="{{ path('app_author_index') }}">
+        <i class="bi bi-people"></i> Autores
+    </a>
+    {% if is_granted('ROLE_USER') %}
+    <a class="srb-mobile-link accent" href="{{ path('app_reference_new') }}">
+        <i class="bi bi-plus-circle"></i> Nueva referencia
+    </a>
+    {% if is_granted('ROLE_ADMIN') %}
+    <a class="srb-mobile-link" href="{{ path('app_author_new') }}">
+        <i class="bi bi-person-plus"></i> Agregar autor
+    </a>
+    {% endif %}
+    <a class="srb-mobile-link muted" href="{{ path('app_logout') }}">
+        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+        <span style="margin-left:auto;font-size:.8rem;color:#bbb;">{{ app.user.username }}</span>
+    </a>
+    {% else %}
+    <a class="srb-mobile-link accent" href="{{ path('app_login') }}">
+        <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+    </a>
+    {% endif %}
+</div>
+
+<div class="srb-content" style="padding-top: 8px;">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'success' ? 'success' : (label == 'error' ? 'danger' : 'info') }} alert-dismissible fade show mt-3">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {% block body %}{% endblock %}
+</div>
+
+<footer style="margin-top:3rem; padding:1rem 20px; text-align:center; font-size:.75rem; color:#999; border-top:1px solid #eceef1; font-family:'Source Sans 3',sans-serif;">
+    SRB &mdash; Centro de Ciencias Matemáticas, UNAM
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+{% block javascripts %}{% endblock %}
+<script>
+(function () {
+    var btn  = document.getElementById('srbToggler');
+    var menu = document.getElementById('srbMobileMenu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function () {
+        var open = menu.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open);
+        btn.querySelector('i').className = open ? 'bi bi-x-lg' : 'bi bi-list';
+        btn.querySelector('i').style.fontSize = '1.3rem';
+    });
+    document.addEventListener('click', function (e) {
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+            menu.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+            btn.querySelector('i').className = 'bi bi-list';
+        }
+    });
+}());
+</script>
+</body>
+</html>

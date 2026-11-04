@@ -1,0 +1,296 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ edit ? 'Editar' : 'Nueva' }} referencia — SRB{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root {
+    --srb-bg:      #ffffff;
+    --srb-surf2:   #f6f7f8;
+    --srb-border:  #e0e2e6;
+    --srb-borderl: #eceef1;
+    --srb-t1:      #1a1a1a;
+    --srb-t2:      #555555;
+    --srb-t3:      #999999;
+    --srb-accent:  #1b4fa8;
+    --srb-accent2: #144090;
+    --srb-accbg:   #e8f0fb;
+}
+
+body { background: var(--srb-bg); }
+.srb-form-wrap { max-width: 760px; margin: 0 auto; padding: 28px 20px 60px; }
+
+/* ── Page header ── */
+.srb-form-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 28px;
+    padding-bottom: 18px; border-bottom: 1px solid var(--srb-border);
+}
+.srb-form-title {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 1.45rem; font-weight: 700; color: var(--srb-t1); margin: 0;
+}
+.srb-back {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: .875rem; color: var(--srb-t3); text-decoration: none; white-space: nowrap;
+}
+.srb-back:hover { color: var(--srb-accent); }
+
+/* ── Form sections ── */
+.srb-section {
+    border: 1px solid var(--srb-border);
+    border-radius: 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+.srb-section-head {
+    padding: 11px 18px 10px;
+    background: var(--srb-surf2);
+    border-bottom: 1px solid var(--srb-borderl);
+    font-size: .72rem; font-weight: 700; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--srb-t3);
+}
+.srb-section-body {
+    padding: 18px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+/* ── Column spans — custom classes, no Bootstrap interference ── */
+.srb-c-2  { grid-column: span 2;  min-width: 0; }
+.srb-c-3  { grid-column: span 3;  min-width: 0; }
+.srb-c-4  { grid-column: span 4;  min-width: 0; }
+.srb-c-5  { grid-column: span 5;  min-width: 0; }
+.srb-c-6  { grid-column: span 6;  min-width: 0; }
+.srb-c-8  { grid-column: span 8;  min-width: 0; }
+.srb-c-12 { grid-column: span 12; min-width: 0; }
+
+@media (max-width: 600px) {
+    .srb-section-body {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .srb-c-2, .srb-c-3, .srb-c-4, .srb-c-5,
+    .srb-c-6, .srb-c-8, .srb-c-12 {
+        grid-column: span 1;
+    }
+}
+
+/* ── Form field elements ── */
+.srb-section-body .mb-3 { margin-bottom: 0 !important; width: 100%; }
+
+.srb-section-body label,
+.srb-section-body .form-label {
+    display: block;
+    font-size: .875rem; font-weight: 600;
+    color: var(--srb-t2);
+    margin-bottom: 5px;
+}
+.srb-section-body .form-control,
+.srb-section-body .form-select {
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+    font-size: .9375rem; color: var(--srb-t1);
+    background: #fff;
+    border: 1px solid var(--srb-border);
+    border-radius: 7px;
+    padding: 7px 11px;
+    width: 100%; box-sizing: border-box;
+    transition: border-color .12s, box-shadow .12s;
+}
+.srb-section-body .form-control:focus,
+.srb-section-body .form-select:focus {
+    border-color: var(--srb-accent);
+    box-shadow: 0 0 0 3px var(--srb-accbg);
+    outline: none;
+}
+.srb-section-body textarea.form-control {
+    resize: vertical; min-height: 90px; line-height: 1.6;
+}
+.srb-section-body .form-check {
+    display: flex; align-items: center; gap: 8px; padding: 6px 0;
+}
+.srb-section-body .form-check-label {
+    font-size: .9375rem; color: var(--srb-t2);
+    text-transform: none; letter-spacing: 0; font-weight: 400; margin: 0;
+}
+.srb-section-body .form-check-input {
+    width: 16px; height: 16px; flex-shrink: 0;
+    border: 1.5px solid var(--srb-border); border-radius: 4px;
+    cursor: pointer; accent-color: var(--srb-accent);
+}
+.srb-section-body .invalid-feedback { font-size: .8rem; color: #c0392b; margin-top: 4px; }
+.srb-section-body .form-control.is-invalid,
+.srb-section-body .form-select.is-invalid { border-color: #e74c3c; }
+.srb-section-body input[type="file"].form-control {
+    padding: 5px 10px; font-size: .875rem;
+    color: var(--srb-t2); background: var(--srb-surf2); cursor: pointer;
+}
+.srb-file-hint { font-size: .82rem; color: var(--srb-t3); }
+
+/* ── Actions ── */
+.srb-form-actions { display: flex; gap: 10px; margin-top: 6px; margin-bottom: 32px; }
+.srb-btn-primary {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 22px; background: var(--srb-accent); color: #fff;
+    border: none; border-radius: 7px;
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+    font-size: .9375rem; font-weight: 600; cursor: pointer;
+    transition: background .12s;
+}
+.srb-btn-primary:hover { background: var(--srb-accent2); }
+.srb-btn-cancel {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px;
+    border: 1px solid var(--srb-border); border-radius: 7px;
+    background: #fff; color: var(--srb-t2);
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+    font-size: .9375rem; font-weight: 500; text-decoration: none;
+    transition: background .12s, color .12s;
+}
+.srb-btn-cancel:hover { background: var(--srb-surf2); color: var(--srb-t1); }
+
+@media (max-width: 600px) {
+    .srb-c-2, .srb-c-3, .srb-c-4, .srb-c-5,
+    .srb-c-6, .srb-c-8 { grid-column: span 12; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="srb-form-wrap">
+
+    <div class="srb-form-header">
+        <h1 class="srb-form-title">{{ edit ? 'Editar referencia' : 'Nueva referencia' }}</h1>
+        <a href="{{ ref.id ? path('app_reference_show', {id: ref.id}) : path('app_reference_index') }}" class="srb-back">
+            <i class="bi bi-arrow-left"></i> Cancelar
+        </a>
+    </div>
+
+    {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+    {# ── Información básica ── #}
+    <div class="srb-section">
+        <div class="srb-section-head">Información básica</div>
+        <div class="srb-section-body">
+            <div class="srb-c-4">{{ form_row(form.type) }}</div>
+            <div class="srb-c-12">{{ form_row(form.title) }}</div>
+            <div class="srb-c-12">{{ form_row(form.author) }}</div>
+            <div class="srb-c-12">{{ form_row(form.authors) }}</div>
+            <div class="srb-c-6">{{ form_row(form.editor) }}</div>
+            <div class="srb-c-6">{{ form_row(form.corporateAuthor) }}</div>
+        </div>
+    </div>
+
+    {# ── Detalles de publicación ── #}
+    <div class="srb-section">
+        <div class="srb-section-head">Detalles de publicación</div>
+        <div class="srb-section-body">
+
+            <div class="srb-c-6 show-article">{{ form_row(form.journal) }}</div>
+            <div class="srb-c-2 show-article">{{ form_row(form.volume) }}</div>
+            <div class="srb-c-2 show-article">{{ form_row(form.issue) }}</div>
+
+            <div class="srb-c-8 show-book show-incollection show-proceedings">{{ form_row(form.bookTitle) }}</div>
+            <div class="srb-c-6 show-inproceedings show-misc">{{ form_row(form.publication) }}</div>
+
+            <div class="srb-c-5 show-book show-incollection show-inproceedings show-proceedings show-misc">{{ form_row(form.publisher) }}</div>
+            <div class="srb-c-4 show-book show-incollection show-inproceedings show-proceedings show-misc">{{ form_row(form.placePub) }}</div>
+
+            <div class="srb-c-6 show-thesis">{{ form_row(form.school) }}</div>
+            <div class="srb-c-6 show-thesis">{{ form_row(form.advisor) }}</div>
+            <div class="srb-c-4 show-thesis">{{ form_row(form.thesisType) }}</div>
+
+            <div class="srb-c-4 show-preprint">{{ form_row(form.reportNumber) }}</div>
+
+            <div class="srb-c-3 show-article show-incollection show-inproceedings">{{ form_row(form.pages) }}</div>
+
+            <div class="srb-c-3 show-preprint">{{ form_row(form.yearPreprint) }}</div>
+            <div class="srb-c-3 show-article show-book show-incollection show-inproceedings show-proceedings show-thesis show-misc">{{ form_row(form.yearPub) }}</div>
+
+            <div class="srb-c-3 show-article show-inproceedings show-proceedings">{{ form_row(form.issn) }}</div>
+            <div class="srb-c-3 show-book show-incollection">{{ form_row(form.isbn) }}</div>
+
+            <div class="srb-c-4 show-misc">{{ form_row(form.medium) }}</div>
+            <div class="srb-c-6 show-book show-incollection show-inproceedings show-proceedings show-misc">{{ form_row(form.address) }}</div>
+        </div>
+    </div>
+
+    {# ── Clasificación y resumen ── #}
+    <div class="srb-section">
+        <div class="srb-section-head">Clasificación y resumen</div>
+        <div class="srb-section-body">
+            <div class="srb-c-6">{{ form_row(form.msc) }}</div>
+            <div class="srb-c-6">{{ form_row(form.keywords) }}</div>
+            <div class="srb-c-12">{{ form_row(form.abst) }}</div>
+        </div>
+    </div>
+
+    {# ── Identificadores y enlaces externos ── #}
+    <div class="srb-section">
+        <div class="srb-section-head">Identificadores y enlaces externos</div>
+        <div class="srb-section-body">
+            <div class="srb-c-6">{{ form_row(form.doi) }}</div>
+            <div class="srb-c-6">{{ form_row(form.arxiv) }}</div>
+            <div class="srb-c-12">{{ form_row(form.url) }}</div>
+            <div class="srb-c-3">{{ form_row(form.mathscinet) }}</div>
+            <div class="srb-c-3">{{ form_row(form.mrNumber) }}</div>
+            <div class="srb-c-3">{{ form_row(form.zmath) }}</div>
+            <div class="srb-c-3">{{ form_row(form.inspires) }}</div>
+            <div class="srb-c-12">{{ form_row(form.uploadedFile) }}</div>
+            {% if ref.file %}
+            <div class="srb-c-12 srb-file-hint">
+                Archivo actual:
+                <a href="/uploads/{{ ref.type }}/{{ ref.file }}" target="_blank" rel="noopener"
+                   style="color:var(--srb-accent);text-decoration:none;">
+                    <i class="bi bi-file-pdf"></i> {{ ref.file }}
+                </a>
+                — subir un PDF nuevo reemplazará este archivo
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ── Notas ── #}
+    <div class="srb-section">
+        <div class="srb-section-head">Notas</div>
+        <div class="srb-section-body">
+            <div class="srb-c-12">{{ form_row(form.notas) }}</div>
+            {% if is_granted('ROLE_ADMIN') %}
+            <div class="srb-c-12">{{ form_row(form.revision) }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="srb-form-actions">
+        <button type="submit" class="srb-btn-primary">
+            <i class="bi bi-save"></i> Guardar
+        </button>
+        <a href="{{ ref.id ? path('app_reference_show', {id: ref.id}) : path('app_reference_index') }}"
+           class="srb-btn-cancel">Cancelar</a>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const typeClasses = ['article','book','incollection','inproceedings','preprint','proceedings','thesis','misc'];
+
+function updateVisibility(type) {
+    typeClasses.forEach(t => {
+        document.querySelectorAll('.show-' + t).forEach(el => el.style.display = 'none');
+    });
+    if (type) {
+        document.querySelectorAll('.show-' + type).forEach(el => el.style.display = '');
+    }
+}
+
+const typeSelect = document.getElementById('ref_type');
+updateVisibility(typeSelect.value);
+typeSelect.addEventListener('change', e => updateVisibility(e.target.value));
+</script>
+{% endblock %}

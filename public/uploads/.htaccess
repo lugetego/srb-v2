@@ -1,0 +1,6 @@
+# Bloquear ejecución de cualquier script en este directorio
+<FilesMatch "\.(php\d?|phtml|pl|py|cgi|sh)$">
+    Require all denied
+</FilesMatch>
+
+Options -Indexes -ExecCGI

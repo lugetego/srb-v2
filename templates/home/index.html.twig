@@ -1,0 +1,485 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sistema de Referencias Bibliográficas — CCM UNAM{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root {
+    --srb-bg:      #ffffff;
+    --srb-surf:    #ffffff;
+    --srb-surf2:   #f6f7f8;
+    --srb-border:  #e0e2e6;
+    --srb-borderl: #eceef1;
+    --srb-t1:      #1a1a1a;
+    --srb-t2:      #555555;
+    --srb-t3:      #999999;
+    --srb-accent:  #1b4fa8;
+    --srb-accent2: #144090;
+    --srb-accbg:   #e8f0fb;
+    --srb-green:   #1a6e46;
+}
+
+/* ── Layout ── */
+body { background: var(--srb-bg); font-family: 'Source Sans 3', system-ui, sans-serif; }
+.srb-page { max-width: 1080px; margin: 0 auto; padding: 0 20px 60px; }
+
+/* ── Hero ── */
+.srb-hero {
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--srb-border);
+    margin-bottom: 24px;
+}
+.srb-eyebrow {
+    font-size: .78rem; font-weight: 600; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--srb-t3); margin-bottom: 8px;
+}
+.srb-main-title {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 1.75rem; font-weight: 700; line-height: 1.25;
+    color: var(--srb-t1); margin-bottom: 4px;
+}
+.srb-desc { font-size: .9375rem; color: var(--srb-t2); font-style: italic; margin-bottom: 18px; }
+
+/* ── Search ── */
+.srb-search-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.srb-search-wrap { position: relative; flex: 1; max-width: 460px; }
+.srb-search-wrap input {
+    width: 100%; padding: 9px 38px 9px 14px;
+    background: var(--srb-surf2);
+    border: 1.5px solid var(--srb-border);
+    border-radius: 8px;
+    color: var(--srb-t1);
+    font-family: 'Inter', inherit; font-size: .9375rem;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+}
+.srb-search-wrap input:focus {
+    border-color: var(--srb-accent);
+    box-shadow: 0 0 0 3px var(--srb-accbg);
+    background: var(--srb-surf);
+}
+.srb-search-icon {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--srb-t3); pointer-events: none;
+}
+.srb-search-btn {
+    padding: 9px 20px;
+    background: var(--srb-accent); color: #fff;
+    border: none; border-radius: 8px;
+    font-family: 'Inter', inherit; font-size: .9375rem; font-weight: 500;
+    cursor: pointer;
+}
+.srb-search-btn:hover { background: var(--srb-accent2); }
+.srb-search-links { display: flex; gap: 12px; margin-top: 8px; }
+.srb-search-links a { font-size: .82rem; color: var(--srb-accent); text-decoration: none; }
+.srb-search-links a:hover { text-decoration: underline; }
+.srb-search-hint { font-size: .8rem; color: var(--srb-t3); font-style: italic; margin-top: 4px; }
+
+/* ── Two-column layout ── */
+.srb-layout { display: grid; grid-template-columns: 1fr 200px; gap: 28px; align-items: start; }
+
+/* ── Section head ── */
+.srb-section-head {
+    font-size: .75rem; font-weight: 700; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--srb-t3);
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--srb-border);
+    margin-bottom: 16px;
+}
+
+/* ── Reference list (DataTable custom render) ── */
+#recentTable_wrapper { font-size: .9375rem; }
+#recentTable_wrapper .dataTables_length,
+#recentTable_wrapper .dataTables_filter { font-size: .82rem; color: var(--srb-t3); }
+#recentTable_wrapper .dataTables_filter input {
+    padding: 4px 10px;
+    border: 1px solid var(--srb-border);
+    border-radius: 6px;
+    background: var(--srb-surf2);
+    color: var(--srb-t1);
+    font-size: .82rem;
+    outline: none;
+    margin-left: 4px;
+}
+#recentTable_wrapper .dataTables_filter input:focus {
+    border-color: var(--srb-accent);
+    box-shadow: 0 0 0 2px var(--srb-accbg);
+}
+#recentTable_wrapper .dataTables_info { font-size: .8rem; color: var(--srb-t3); }
+#recentTable_wrapper .dataTables_paginate { font-size: .875rem; }
+#recentTable_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 5px !important; border: 1px solid var(--srb-border) !important;
+    color: var(--srb-t2) !important; margin: 0 1px !important;
+    padding: 2px 8px !important;
+}
+#recentTable_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--srb-accent) !important;
+    border-color: var(--srb-accent) !important;
+    color: #fff !important; font-weight: 600 !important;
+}
+#recentTable_wrapper .dataTables_paginate .paginate_button:not(.disabled):hover {
+    background: var(--srb-accbg) !important;
+    border-color: var(--srb-accent) !important;
+    color: var(--srb-accent) !important;
+}
+table#recentTable { border: none !important; }
+table#recentTable thead { display: none; }
+table#recentTable tbody tr { border-bottom: 1px solid var(--srb-borderl) !important; }
+table#recentTable tbody tr:last-child { border-bottom: none !important; }
+table#recentTable tbody td {
+    padding: 14px 0 !important;
+    border: none !important;
+    vertical-align: top;
+}
+
+/* ── Result item inner layout ── */
+.ri-wrap { display: flex; gap: 10px; }
+.ri-num { min-width: 24px; text-align: right; font-size: .875rem; color: var(--srb-t3); padding-top: 2px; font-variant-numeric: tabular-nums; }
+.ri-body { flex: 1; min-width: 0; }
+.ri-top { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; flex-wrap: wrap; }
+.ri-title {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 1rem; color: var(--srb-accent);
+    text-decoration: none; display: block; line-height: 1.45; margin-bottom: 2px;
+}
+.ri-title:hover { color: var(--srb-accent2); text-decoration: underline; text-decoration-skip-ink: auto; }
+.ri-author { font-size: .875rem; color: var(--srb-green); margin: 2px 0 0; }
+.ri-biblio { font-size: .82rem; color: var(--srb-t2); margin: 2px 0 0; }
+.ri-year { font-size: .8rem; color: var(--srb-t3); font-variant-numeric: tabular-nums; }
+
+/* ── Badges ── */
+.ri-badge {
+    display: inline-flex; align-items: center;
+    padding: 1px 7px; border-radius: 4px;
+    font-size: .7rem; font-weight: 700;
+    white-space: nowrap;
+}
+.ri-badge-article  { background: #e8f0fb; color: #1b4fa8; }
+.ri-badge-preprint { background: #f3f0ff; color: #6d28d9; }
+.ri-badge-book     { background: #fef3c7; color: #b45309; }
+.ri-badge-chapter  { background: #e0f7fa; color: #0e7490; }
+.ri-badge-thesis   { background: #fff4ee; color: #9a3412; }
+.ri-badge-default  { background: #f0f0f0; color: #555; }
+
+/* ── See all link ── */
+.srb-see-all {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 12px;
+    font-size: .875rem; color: var(--srb-accent); text-decoration: none;
+}
+.srb-see-all:hover { text-decoration: underline; }
+
+/* ── Sidebar cards ── */
+.srb-card {
+    background: var(--srb-surf);
+    border: 1px solid var(--srb-border);
+    border-radius: 8px; overflow: hidden;
+    margin-bottom: 16px;
+}
+.srb-card-head {
+    font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--srb-t3);
+    padding: 9px 12px 8px;
+    border-bottom: 1px solid var(--srb-border);
+    background: var(--srb-surf2);
+}
+.srb-card-user { padding: 8px 12px; font-size: .875rem; color: var(--srb-t2); }
+.srb-card-user strong { color: var(--srb-t1); }
+.srb-card-action {
+    display: block; margin: 2px 12px 10px;
+    padding: 7px 10px; text-align: center;
+    background: var(--srb-accent); color: #fff;
+    border-radius: 6px; text-decoration: none;
+    font-size: .875rem; font-weight: 500;
+}
+.srb-card-action:hover { background: var(--srb-accent2); color: #fff; }
+.srb-card-rows { padding: 2px 0; }
+.srb-card-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 12px; font-size: .875rem;
+    border-top: 1px solid var(--srb-borderl);
+}
+.srb-card-row:first-child { border-top: none; }
+.srb-card-row a { color: var(--srb-accent); text-decoration: none; }
+.srb-card-row a:hover { text-decoration: underline; }
+.srb-card-row-val { font-size: .82rem; color: var(--srb-t3); font-variant-numeric: tabular-nums; }
+.srb-type-dot {
+    display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; margin-right: 6px; flex-shrink: 0;
+}
+
+/* ── Keywords cloud ── */
+.srb-kwcloud { padding: 10px 12px 12px; display: flex; flex-wrap: wrap; gap: 5px; }
+.srb-kw {
+    display: inline-block;
+    padding: 3px 9px; border-radius: 20px;
+    background: var(--srb-surf2); border: 1px solid var(--srb-borderl);
+    color: var(--srb-t2); font-size: .8rem;
+    cursor: default; transition: background .12s, color .12s;
+    text-decoration: none;
+}
+.srb-kw:hover {
+    background: var(--srb-accbg); border-color: var(--srb-accent);
+    color: var(--srb-accent);
+}
+
+/* ── Por tipo: badges ── */
+.srb-typebadges { padding: 10px 12px 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.srb-typebadge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 9px; border-radius: 20px;
+    font-size: .8rem; font-weight: 600;
+    white-space: nowrap;
+    border: 2px solid transparent;
+    cursor: pointer; transition: opacity .12s, box-shadow .12s, border-color .12s;
+    font-family: inherit;
+}
+.srb-typebadge:hover { opacity: .8; }
+.srb-typebadge.active { border-color: currentColor; box-shadow: 0 0 0 2px rgba(0,0,0,.15); }
+.srb-typebadge-count {
+    font-size: .75rem; font-weight: 400; opacity: .75;
+    font-variant-numeric: tabular-nums;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="srb-page">
+
+    {# ── Hero ── #}
+    <header class="srb-hero">
+        <p class="srb-eyebrow">Centro de Ciencias Matemáticas &mdash; Universidad Nacional Autónoma de México</p>
+        <h1 class="srb-main-title">Sistema de Referencias Bibliográficas</h1>
+        <p class="srb-desc">El Sistema de Referencias Bibliográficas es un repositorio de producción bibliográfica del Centro de Ciencias Matemáticas.</p>
+
+        <form action="{{ path('app_search') }}" method="GET" class="srb-search-row">
+            <div class="srb-search-wrap">
+                <input type="text" name="keyword" autocomplete="off"
+                       placeholder="Buscar por título, autor o palabra clave…">
+                <svg class="srb-search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="6.5" cy="6.5" r="5.5"/><path d="M11 11l3 3"/>
+                </svg>
+            </div>
+            <button type="submit" class="srb-search-btn">Buscar</button>
+        </form>
+        <div class="srb-search-links">
+            <a href="{{ path('app_search') }}">Búsqueda avanzada</a>
+            {% if is_granted('ROLE_USER') %}
+            <a href="{{ path('app_reference_new') }}">+ Nueva referencia</a>
+            {% endif %}
+        </div>
+        <p class="srb-search-hint">Busca en título, autores y resumen de todas las referencias.</p>
+    </header>
+
+    {# ── Two-column layout ── #}
+    <div class="srb-layout">
+
+        {# ── Main: recent references ── #}
+        <main>
+            <div class="srb-section-head">Últimas referencias</div>
+            <table id="recentTable" style="width:100%">
+                <thead><tr><th></th><th></th><th></th><th></th></tr></thead>
+            </table>
+            <a href="{{ path('app_reference_index') }}" class="srb-see-all">Ver todas las referencias →</a>
+        </main>
+
+        {# ── Sidebar ── #}
+        <aside>
+
+            {# Acceso — solo visible cuando hay sesión activa #}
+            {% if is_granted('ROLE_USER') %}
+            <div class="srb-card">
+                <div class="srb-card-head">Sesión activa</div>
+                <div class="srb-card-user"><strong>{{ app.user.username }}</strong></div>
+                <div class="srb-card-rows">
+                    <div class="srb-card-row"><a href="{{ path('app_reference_new') }}">+ Nueva referencia</a></div>
+                    <div class="srb-card-row"><a href="{{ path('app_reference_index') }}">Explorar todas</a></div>
+                    <div class="srb-card-row"><a href="{{ path('app_author_index') }}">Autores</a></div>
+                    <div class="srb-card-row"><a href="{{ path('app_logout') }}" style="color:#999">Cerrar sesión</a></div>
+                </div>
+            </div>
+            {% endif %}
+
+            {# Por tipo — badges #}
+            <div class="srb-card">
+                <div class="srb-card-head">Por tipo</div>
+                <div class="srb-typebadges">
+                    {% set typeStyles = {
+                        'article':       'background:#e8f0fb;color:#1b4fa8;',
+                        'preprint':      'background:#f3f0ff;color:#6d28d9;',
+                        'book':          'background:#fef3c7;color:#b45309;',
+                        'incollection':  'background:#e0f7fa;color:#0e7490;',
+                        'inproceedings': 'background:#e0f7fa;color:#0e7490;',
+                        'proceedings':   'background:#fce7f3;color:#be185d;',
+                        'thesis':        'background:#fff4ee;color:#9a3412;',
+                        'misc':          'background:#f0f0f0;color:#666;'
+                    } %}
+                    {% set typeLabels = {
+                        'article':       'Article',
+                        'preprint':      'Preprint',
+                        'book':          'Book',
+                        'incollection':  'Incollection',
+                        'inproceedings': 'Inproceedings',
+                        'proceedings':   'Proceedings',
+                        'thesis':        'Thesis',
+                        'misc':          'Misc'
+                    } %}
+                    {% for row in stats.byType %}
+                    {% set style = typeStyles[row.type] ?? 'background:#f0f0f0;color:#666;' %}
+                    {% set label = typeLabels[row.type] ?? row.type|capitalize %}
+                    <button class="srb-typebadge" style="{{ style }}" data-type="{{ row.type }}">
+                        {{ label }}
+                        <span class="srb-typebadge-count">{{ row.cnt|number_format }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# Keywords #}
+            {% if stats.topKeywords|length > 0 %}
+            <div class="srb-card">
+                <div class="srb-card-head">Keywords</div>
+                <div class="srb-kwcloud">
+                    {% for kw in stats.topKeywords %}
+                    <a href="{{ path('app_search') }}?keyword={{ kw.label|url_encode }}"
+                       class="srb-kw"
+                       title="{{ kw.count }} referencias">
+                        {{ kw.label|lower|capitalize }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </aside>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(function () {
+    const BADGE = {
+        article:       ['ri-badge-article',       'Article'],
+        preprint:      ['ri-badge-preprint',       'Preprint'],
+        book:          ['ri-badge-book',           'Book'],
+        chapter:       ['ri-badge-chapter',        'Chapter'],
+        incollection:  ['ri-badge-chapter',        'Incollection'],
+        inproceedings: ['ri-badge-inproceedings',  'Inproceedings'],
+        proceedings:   ['ri-badge-proceedings',    'Proceedings'],
+        thesis:        ['ri-badge-thesis',         'Thesis'],
+    };
+
+    function badge(type) {
+        const t = (type || '').toLowerCase();
+        const [cls, label] = BADGE[t] || ['ri-badge-default', type || '—'];
+        return `<span class="ri-badge ${cls}">${label}</span>`;
+    }
+
+    function biblio(row) {
+        const t = (row.type || '').toLowerCase();
+        const parts = [];
+        if (t === 'article') {
+            if (row.journal)   parts.push(`<em>${row.journal}</em>`);
+            if (row.volume)    parts.push(`Vol. ${row.volume}`);
+            if (row.issue)     parts.push(`Issue ${row.issue}`);
+            if (row.year)      parts.push(row.year);
+            if (row.pages)     parts.push(`p. ${row.pages}`);
+        } else if (t === 'book') {
+            if (row.publisher) parts.push(row.publisher);
+            if (row.placePub)  parts.push(row.placePub);
+            if (row.year)      parts.push(row.year);
+        } else if (t === 'inproceedings' || t === 'proceedings') {
+            if (row.bookTitle) parts.push(`<em>${row.bookTitle}</em>`);
+            if (row.publisher) parts.push(row.publisher);
+            if (row.year)      parts.push(row.year);
+            if (row.pages)     parts.push(`p. ${row.pages}`);
+        } else if (t === 'incollection') {
+            if (row.bookTitle) parts.push(`<em>${row.bookTitle}</em>`);
+            if (row.editor)    parts.push(`Ed. ${row.editor}`);
+            if (row.publisher) parts.push(row.publisher);
+            if (row.year)      parts.push(row.year);
+            if (row.pages)     parts.push(`p. ${row.pages}`);
+        } else if (t === 'thesis') {
+            if (row.school)    parts.push(row.school);
+            if (row.year)      parts.push(row.year);
+        } else {
+            if (row.year)      parts.push(row.year);
+        }
+        return parts.length ? `<p class="ri-biblio">${parts.join(', ')}</p>` : '';
+    }
+
+    let activeType = null;
+
+    const dt = $('#recentTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '{{ path('app_reference_data') }}',
+            type: 'GET',
+            data: d => {
+                if (activeType) d.criteria = JSON.stringify({ type: activeType });
+            }
+        },
+        columns: [
+            {
+                data: 'title',
+                render: (d, t, row, meta) => {
+                    const n = meta.row + meta.settings._iDisplayStart + 1;
+                    const bib    = biblio(row);
+                    const author = row.author ? `<p class="ri-author">${row.author}</p>` : '';
+                    return `<div class="ri-wrap">
+                        <span class="ri-num">${n}.</span>
+                        <div class="ri-body">
+                            <div class="ri-top">${badge(row.type)}</div>
+                            <a href="${row.url_show}" class="ri-title">${d}</a>
+                            ${bib}
+                            ${author}
+                        </div>
+                    </div>`;
+                }
+            },
+            { data: 'author',    visible: false },
+            { data: 'type',      visible: false },
+            { data: 'year',      visible: false },
+            { data: 'journal',   visible: false },
+            { data: 'volume',    visible: false },
+            { data: 'issue',     visible: false },
+            { data: 'pages',     visible: false },
+            { data: 'publisher', visible: false },
+            { data: 'placePub',  visible: false },
+            { data: 'bookTitle', visible: false },
+            { data: 'editor',    visible: false },
+            { data: 'school',    visible: false },
+        ],
+        order: [[3, 'desc']],
+        pageLength: 10,
+        dom: '<"d-flex justify-content-between align-items-center mb-2"lf>t<"d-flex justify-content-between align-items-center mt-2"ip>',
+        language: {
+            search: 'Filtrar:',
+            lengthMenu: 'Mostrar _MENU_',
+            info: '_START_–_END_ de _TOTAL_',
+            infoEmpty: 'Sin registros',
+            zeroRecords: 'Sin resultados',
+            paginate: { first: '«', last: '»', next: '›', previous: '‹' },
+            processing: 'Cargando…',
+        },
+    });
+
+    $('.srb-typebadge').on('click', function () {
+        const type = $(this).data('type');
+        if (activeType === type) {
+            activeType = null;
+            $('.srb-typebadge').removeClass('active');
+        } else {
+            activeType = type;
+            $('.srb-typebadge').removeClass('active');
+            $(this).addClass('active');
+        }
+        dt.ajax.reload();
+    });
+});
+</script>
+{% endblock %}

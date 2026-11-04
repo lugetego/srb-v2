@@ -1,0 +1,328 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ ref.title|u.truncate(80, '…') }} — SRB CCM{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root {
+    --srb-bg:      #ffffff;
+    --srb-surf2:   #f6f7f8;
+    --srb-border:  #e0e2e6;
+    --srb-borderl: #eceef1;
+    --srb-t1:      #1a1a1a;
+    --srb-t2:      #555555;
+    --srb-t3:      #999999;
+    --srb-accent:  #1b4fa8;
+    --srb-accent2: #144090;
+    --srb-accbg:   #e8f0fb;
+    --srb-green:   #1a6e46;
+}
+
+body { background: var(--srb-bg); font-family: 'Source Sans 3', system-ui, sans-serif; }
+.srb-show { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; }
+
+/* ── Top bar ── */
+.srb-show-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 20px;
+}
+.srb-back {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: .875rem; color: var(--srb-t3); text-decoration: none;
+}
+.srb-back:hover { color: var(--srb-accent); }
+.srb-show-actions { display: flex; gap: 6px; }
+.srb-action-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 6px; font-size: .875rem; font-weight: 500;
+    text-decoration: none; border: 1px solid var(--srb-border);
+    color: var(--srb-t2); background: #fff; cursor: pointer;
+    transition: background .12s, color .12s, border-color .12s;
+}
+.srb-action-btn:hover { background: var(--srb-surf2); color: var(--srb-t1); }
+.srb-action-btn.danger { color: #c0392b; border-color: #f5c6cb; }
+.srb-action-btn.danger:hover { background: #fff0f0; border-color: #e74c3c; }
+
+/* ── Badge ── */
+.srb-type-badge {
+    display: inline-flex; align-items: center;
+    padding: 2px 9px; border-radius: 4px;
+    font-size: .72rem; font-weight: 700;
+}
+.srb-badge-article      { background: #e8f0fb; color: #1b4fa8; }
+.srb-badge-preprint     { background: #f3f0ff; color: #6d28d9; }
+.srb-badge-book         { background: #fef3c7; color: #b45309; }
+.srb-badge-incollection { background: #e0f7fa; color: #0e7490; }
+.srb-badge-inproceedings{ background: #ecfdf5; color: #065f46; }
+.srb-badge-proceedings  { background: #fce7f3; color: #be185d; }
+.srb-badge-thesis       { background: #fff4ee; color: #9a3412; }
+.srb-badge-misc         { background: #f0f0f0; color: #666; }
+.srb-badge-reviewed     { background: #d1fae5; color: #065f46; }
+
+/* ── Title & authors ── */
+.srb-show-title {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 1.55rem; font-weight: 700; line-height: 1.35;
+    color: var(--srb-t1); margin: 12px 0 8px;
+}
+.srb-show-author {
+    font-size: .95rem; color: var(--srb-green); margin-bottom: 4px;
+}
+.srb-show-author a { color: var(--srb-green); text-decoration: none; }
+.srb-show-author a:hover { text-decoration: underline; }
+
+/* ── Divider ── */
+.srb-divider { border: none; border-top: 1px solid var(--srb-border); margin: 18px 0; }
+
+/* ── Metadata grid ── */
+.srb-meta-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px;
+    margin-bottom: 4px;
+}
+@media (max-width: 540px) {
+    .srb-meta-grid { grid-template-columns: 1fr; gap: 12px; }
+}
+.srb-meta-field dt {
+    font-size: .75rem; font-weight: 700; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--srb-t3); margin-bottom: 3px;
+}
+.srb-meta-field dd { font-size: .9375rem; color: var(--srb-t1); margin: 0; }
+
+/* ── Abstract / notes ── */
+.srb-block { margin-top: 20px; }
+.srb-block dt {
+    font-size: .75rem; font-weight: 700; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--srb-t3); margin-bottom: 8px;
+}
+.srb-block dd {
+    font-size: 1rem; color: var(--srb-t2); line-height: 1.7;
+    margin: 0; text-align: justify;
+}
+
+/* ── External links ── */
+.srb-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+.srb-ext-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 14px; border-radius: 6px;
+    border: 1px solid var(--srb-border);
+    font-size: .9375rem; color: var(--srb-t2); text-decoration: none;
+    transition: background .12s, color .12s, border-color .12s;
+}
+.srb-ext-link:hover { background: var(--srb-accbg); color: var(--srb-accent); border-color: var(--srb-accent); }
+.srb-ext-link.pdf { border-color: #d1fae5; color: #065f46; }
+.srb-ext-link.pdf:hover { background: #d1fae5; }
+
+/* ── Footer meta ── */
+.srb-show-foot { font-size: .8rem; color: var(--srb-t3); margin-top: 16px; }
+</style>
+{% endblock %}
+
+{% block body %}
+{% set typeMap = {
+    'article':       ['srb-badge-article',       'Article'],
+    'preprint':      ['srb-badge-preprint',       'Preprint'],
+    'book':          ['srb-badge-book',           'Book'],
+    'incollection':  ['srb-badge-incollection',   'Incollection'],
+    'inproceedings': ['srb-badge-inproceedings',  'Inproceedings'],
+    'proceedings':   ['srb-badge-proceedings',    'Proceedings'],
+    'thesis':        ['srb-badge-thesis',         'Thesis'],
+    'misc':          ['srb-badge-misc',           'Misc'],
+} %}
+{% set typeCls   = typeMap[ref.type][0] ?? 'srb-badge-misc' %}
+{% set typeLabel = typeMap[ref.type][1] ?? ref.type %}
+
+<div class="srb-show">
+
+    {# ── Top bar ── #}
+    <div class="srb-show-topbar">
+        <a href="{{ path('app_reference_index') }}" class="srb-back">
+            <i class="bi bi-arrow-left"></i> Referencias
+        </a>
+        <div class="srb-show-actions">
+            {% if is_granted('ROLE_ADMIN') or (is_granted('ROLE_USER') and ref.user == app.user) %}
+            <a href="{{ path('app_reference_edit', {id: ref.id}) }}" class="srb-action-btn">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+            <button type="button" class="srb-action-btn danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="bi bi-trash"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ── Badge row ── #}
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <span class="srb-type-badge {{ typeCls }}">{{ typeLabel }}</span>
+        {% if ref.revision %}
+        <span class="srb-type-badge srb-badge-reviewed"><i class="bi bi-check-circle"></i> Revisado</span>
+        {% endif %}
+    </div>
+
+    {# ── Title ── #}
+    <h1 class="srb-show-title">{{ ref.title }}</h1>
+
+    {# ── Authors (plain text) ── #}
+    {% if ref.author %}
+    <p class="srb-show-author" style="color:var(--srb-t2);">{{ ref.author }}</p>
+    {% endif %}
+
+    {# ── Keywords (below authors) ── #}
+    {% if ref.keywords %}
+    <div style="margin:10px 0 6px;display:flex;flex-wrap:wrap;gap:7px;">
+        {% for kw in ref.keywords|replace({'||': ';'})|split(';') %}
+        {% set k = kw|trim|lower|title %}
+        {% if k %}
+        <span style="display:inline-block;padding:4px 13px;border-radius:20px;background:var(--srb-surf2);border:1px solid var(--srb-borderl);font-size:.82rem;color:var(--srb-t2);font-weight:400;">{{ k }}</span>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# ── DOI / URL after keywords ── #}
+    {% if ref.doi or ref.url %}
+    <div style="margin:8px 0 2px;display:flex;flex-wrap:wrap;gap:14px;">
+        {% if ref.doi %}
+        <a href="https://doi.org/{{ ref.doi }}" target="_blank" rel="noopener"
+           style="display:inline-flex;align-items:center;gap:4px;font-size:.85rem;color:var(--srb-accent);text-decoration:none;">
+            <i class="bi bi-link-45deg"></i> DOI
+        </a>
+        {% endif %}
+        {% if ref.url %}
+        <a href="{{ ref.url }}" target="_blank" rel="noopener"
+           style="display:inline-flex;align-items:center;gap:4px;font-size:.85rem;color:var(--srb-accent);text-decoration:none;">
+            <i class="bi bi-globe"></i> URL
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <hr class="srb-divider">
+
+    {# ── Metadata ── #}
+    {% macro field(label, value) %}
+        {% if value %}
+        <div class="srb-meta-field">
+            <dt>{{ label }}</dt>
+            <dd>{{ value }}</dd>
+        </div>
+        {% endif %}
+    {% endmacro %}
+
+    <dl class="srb-meta-grid">
+        {{ _self.field('Year', ref.yearPub) }}
+        {{ _self.field('Year', ref.yearPreprint) }}
+        {{ _self.field('Journal', ref.journal) }}
+        {{ _self.field('Volume', ref.volume) }}
+        {{ _self.field('Issue', ref.issue) }}
+        {{ _self.field('Pages', ref.pages) }}
+        {{ _self.field('Book title', ref.bookTitle) }}
+        {{ _self.field('Editor', ref.editor) }}
+        {{ _self.field('Publisher', ref.publisher) }}
+        {{ _self.field('Place', ref.placePub) }}
+        {{ _self.field('ISBN', ref.isbn) }}
+        {{ _self.field('School', ref.school) }}
+        {{ _self.field('Advisor', ref.advisor) }}
+        {{ _self.field('Thesis type', ref.thesisType) }}
+        {{ _self.field('Report number', ref.reportNumber) }}
+        {{ _self.field('MSC', ref.msc) }}
+        {{ _self.field('Address', ref.address) }}
+        {{ _self.field('Medium', ref.medium) }}
+    </dl>
+
+    {# ── Abstract ── #}
+    {% if ref.abst %}
+    <dl class="srb-block">
+        <dt>Abstract</dt>
+        <dd>{{ ref.abst }}</dd>
+    </dl>
+    {% endif %}
+
+    {# ── Notes ── #}
+    {% if ref.notas %}
+    <dl class="srb-block">
+        <dt>Notes</dt>
+        <dd>{{ ref.notas }}</dd>
+    </dl>
+    {% endif %}
+
+    {# ── External links (indexes + PDF) ── #}
+    {% set hasLinks = ref.arxiv or ref.mathscinet or ref.zmath or ref.inspires or ref.file %}
+    {% if hasLinks %}
+    <hr class="srb-divider">
+    <div class="srb-links">
+        {% if ref.arxiv %}
+        <a href="https://arxiv.org/abs/{{ ref.arxiv }}" target="_blank" rel="noopener" class="srb-ext-link">
+            arXiv
+        </a>
+        {% endif %}
+        {% if ref.mathscinet %}
+        <a href="https://mathscinet.ams.org/mathscinet/search/publdoc.html?r=1&pg1=MR&s1={{ ref.mathscinet }}" target="_blank" rel="noopener" class="srb-ext-link">
+            MathSciNet
+        </a>
+        {% endif %}
+        {% if ref.zmath %}
+        <a href="https://zbmath.org/?q=an:{{ ref.zmath }}" target="_blank" rel="noopener" class="srb-ext-link">
+            zbMATH
+        </a>
+        {% endif %}
+        {% if ref.inspires %}
+        <a href="https://inspirehep.net/literature?sort=mostrecent&size=25&page=1&q={{ ref.inspires }}" target="_blank" rel="noopener" class="srb-ext-link">
+            INSPIRE
+        </a>
+        {% endif %}
+        {% if ref.file %}
+        <a href="/uploads/{{ ref.type }}/{{ ref.file }}" target="_blank" class="srb-ext-link pdf">
+            <i class="bi bi-file-pdf"></i> PDF
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {# ── Autor institucional asociado ── #}
+    {% if ref.authors|length > 0 %}
+    <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--srb-borderl);">
+        <span style="font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--srb-t3);">
+            Autor{{ ref.authors|length > 1 ? 'es' : '' }} institucional{{ ref.authors|length > 1 ? 'es' : '' }} asociado{{ ref.authors|length > 1 ? 's' : '' }}
+        </span>
+        <div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:6px;">
+            {% for a in ref.authors %}
+            <a href="{{ path('app_author_show', {id: a.id}) }}"
+               style="font-size:.875rem;color:var(--srb-accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                <i class="bi bi-person-circle" style="font-size:.8rem;color:var(--srb-t3);"></i>
+                {{ a.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Foot meta ── #}
+    {% if ref.created %}
+    <p class="srb-show-foot">Añadido {{ ref.created|date('Y-m-d') }}</p>
+    {% endif %}
+
+</div>
+
+{# ── Delete modal ── #}
+{% if is_granted('ROLE_ADMIN') or (is_granted('ROLE_USER') and ref.user == app.user) %}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" style="font-size:.95rem;font-weight:600;">¿Eliminar referencia?</h5>
+            </div>
+            <div class="modal-body" style="font-size:.85rem;color:#555;">Esta acción no se puede deshacer.</div>
+            <div class="modal-footer border-0 pt-0">
+                <button class="srb-action-btn" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="{{ path('app_reference_delete', {id: ref.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ref.id) }}">
+                    <button class="srb-action-btn danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

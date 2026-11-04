@@ -1,0 +1,111 @@
+Sistema de Referencias Bibliográficas — CCM UNAM
+================================================
+
+Se ha registrado una nueva publicación en el SRB.
+
+Usuario: {{ app.user ? app.user.username : '(desconocido)' }}
+Fecha:   {{ 'now'|date('Y-m-d H:i') }} (hora del servidor)
+
+────────────────────────────────────────────────
+DATOS DE LA PUBLICACIÓN
+────────────────────────────────────────────────
+
+Tipo:    {{ ref.type|capitalize }}
+{% if ref.title %}
+Título:  {{ ref.title }}
+{% endif %}
+{% if ref.author %}
+Autor(es): {{ ref.author }}
+{% endif %}
+{% if ref.authors|length > 0 %}
+Autores institucionales:
+{% for a in ref.authors %}
+  · {{ a.name }}
+{% endfor %}
+{% endif %}
+{% if ref.yearPub %}
+Año publicación: {{ ref.yearPub }}
+{% endif %}
+{% if ref.yearPreprint %}
+Año preprint:    {{ ref.yearPreprint }}
+{% endif %}
+{% if ref.reportNumber %}
+Identificador:   {{ ref.reportNumber }}
+{% endif %}
+
+{% if ref.journal %}
+Revista:  {{ ref.journal }}{% if ref.volume %}, Vol. {{ ref.volume }}{% endif %}{% if ref.issue %}, No. {{ ref.issue }}{% endif %}{% if ref.pages %}, pp. {{ ref.pages }}{% endif %}
+
+{% endif %}
+{% if ref.bookTitle %}
+Libro:    {{ ref.bookTitle }}
+{% endif %}
+{% if ref.editor %}
+Editor:   {{ ref.editor }}
+{% endif %}
+{% if ref.publisher %}
+Editorial: {{ ref.publisher }}{% if ref.placePub %}, {{ ref.placePub }}{% endif %}
+
+{% endif %}
+{% if ref.school %}
+Institución: {{ ref.school }}{% if ref.thesisType %} ({{ ref.thesisType }}){% endif %}
+
+{% endif %}
+{% if ref.keywords %}
+Palabras clave: {{ ref.keywords }}
+{% endif %}
+{% if ref.issn %}
+ISSN:  {{ ref.issn }}
+{% endif %}
+{% if ref.isbn %}
+ISBN:  {{ ref.isbn }}
+{% endif %}
+
+{% if ref.doi or ref.url or ref.arxiv or ref.mathscinet or ref.zmath or ref.inspires %}
+────────────────────────────────────────────────
+ENLACES EXTERNOS
+────────────────────────────────────────────────
+{% if ref.doi %}
+DOI:        https://doi.org/{{ ref.doi }}
+{% endif %}
+{% if ref.arxiv %}
+arXiv:      https://arxiv.org/abs/{{ ref.arxiv }}
+{% endif %}
+{% if ref.url %}
+URL:        {{ ref.url }}
+{% endif %}
+{% if ref.mathscinet %}
+MathSciNet: {{ ref.mathscinet }}
+{% endif %}
+{% if ref.zmath %}
+zbMATH:     {{ ref.zmath }}
+{% endif %}
+{% if ref.inspires %}
+INSPIRE:    {{ ref.inspires }}
+{% endif %}
+{% endif %}
+
+{% if ref.abst %}
+────────────────────────────────────────────────
+RESUMEN
+────────────────────────────────────────────────
+{{ ref.abst }}
+
+{% endif %}
+{% if ref.notas %}
+────────────────────────────────────────────────
+NOTAS
+────────────────────────────────────────────────
+{{ ref.notas }}
+
+{% endif %}
+────────────────────────────────────────────────
+ACCESO AL REGISTRO
+────────────────────────────────────────────────
+
+Ver registro:   {{ url }}
+Editar registro: {{ editUrl }}
+
+────────────────────────────────────────────────
+Centro de Ciencias Matemáticas — UNAM, Campus Morelia
+Este es un mensaje automático, no responder a esta dirección.

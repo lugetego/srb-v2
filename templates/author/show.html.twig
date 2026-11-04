@@ -1,0 +1,223 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ author.name }} — SRB CCM{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root {
+    --srb-bg:      #ffffff;
+    --srb-surf2:   #f6f7f8;
+    --srb-border:  #e0e2e6;
+    --srb-borderl: #eceef1;
+    --srb-t1:      #1a1a1a;
+    --srb-t2:      #555555;
+    --srb-t3:      #999999;
+    --srb-accent:  #1b4fa8;
+    --srb-accent2: #144090;
+    --srb-accbg:   #e8f0fb;
+    --srb-green:   #1a6e46;
+}
+
+body { background: var(--srb-bg); font-family: 'Source Sans 3', system-ui, sans-serif; }
+.srb-page { max-width: 860px; margin: 0 auto; padding: 24px 20px 60px; }
+
+.srb-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 20px;
+}
+.srb-back { display: inline-flex; align-items: center; gap: 5px; font-size: .875rem; color: var(--srb-t3); text-decoration: none; }
+.srb-back:hover { color: var(--srb-accent); }
+.srb-action-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 6px; font-size: .875rem; font-weight: 500;
+    text-decoration: none; border: 1px solid var(--srb-border);
+    color: var(--srb-t2); background: #fff;
+}
+.srb-action-btn:hover { background: var(--srb-surf2); color: var(--srb-t1); }
+
+.srb-author-name {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 1.4rem; font-weight: 700; color: var(--srb-t1); margin: 0 0 4px;
+}
+.srb-author-alias { font-size: .875rem; color: var(--srb-t3); margin-bottom: 4px; }
+.srb-pub-count {
+    display: inline-block; margin-top: 4px;
+    font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--srb-t3);
+}
+
+.srb-divider { border: none; border-top: 1px solid var(--srb-border); margin: 18px 0; }
+
+/* ── DataTable ── */
+#pubsTable_wrapper { font-size: .9375rem; }
+#pubsTable_wrapper .dataTables_length,
+#pubsTable_wrapper .dataTables_filter { font-size: .82rem; color: var(--srb-t3); }
+#pubsTable_wrapper .dataTables_filter input {
+    padding: 4px 10px; border: 1px solid var(--srb-border); border-radius: 6px;
+    background: var(--srb-surf2); color: var(--srb-t1); font-size: .82rem; outline: none; margin-left: 4px;
+}
+#pubsTable_wrapper .dataTables_filter input:focus { border-color: var(--srb-accent); box-shadow: 0 0 0 2px var(--srb-accbg); }
+#pubsTable_wrapper .dataTables_info { font-size: .8rem; color: var(--srb-t3); }
+#pubsTable_wrapper .dataTables_paginate { font-size: .875rem; }
+#pubsTable_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 5px !important; border: 1px solid var(--srb-border) !important;
+    color: var(--srb-t2) !important; margin: 0 1px !important; padding: 2px 8px !important;
+}
+#pubsTable_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--srb-accent) !important; border-color: var(--srb-accent) !important;
+    color: #fff !important; font-weight: 600 !important;
+}
+#pubsTable_wrapper .dataTables_paginate .paginate_button:not(.disabled):hover {
+    background: var(--srb-accbg) !important; border-color: var(--srb-accent) !important; color: var(--srb-accent) !important;
+}
+table#pubsTable { border: none !important; width: 100% !important; }
+table#pubsTable thead th {
+    font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--srb-t3); border-bottom: 2px solid var(--srb-border) !important;
+    border-top: none !important; padding: 8px 10px 8px 0 !important; background: transparent !important;
+}
+table#pubsTable tbody tr { border-bottom: 1px solid var(--srb-borderl) !important; }
+table#pubsTable tbody tr:last-child { border-bottom: none !important; }
+table#pubsTable tbody td { padding: 12px 10px 12px 0 !important; border: none !important; vertical-align: middle; }
+
+.pub-title { font-size: .9rem; color: var(--srb-accent); text-decoration: none; display: block; }
+.pub-title:hover { color: var(--srb-accent2); text-decoration: underline; }
+.pub-biblio { font-size: .82rem; color: var(--srb-t2); margin: 2px 0 0; }
+.pub-year { font-size: .875rem; color: var(--srb-t3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.srb-type-badge {
+    display: inline-flex; padding: 1px 7px; border-radius: 4px;
+    font-size: .6rem; font-weight: 700; white-space: nowrap;
+}
+.srb-badge-article      { background: #e8f0fb; color: #1b4fa8; }
+.srb-badge-preprint     { background: #f3f0ff; color: #6d28d9; }
+.srb-badge-book         { background: #fef3c7; color: #b45309; }
+.srb-badge-incollection { background: #e0f7fa; color: #0e7490; }
+.srb-badge-inproceedings{ background: #ecfdf5; color: #065f46; }
+.srb-badge-proceedings  { background: #fce7f3; color: #be185d; }
+.srb-badge-thesis       { background: #fff4ee; color: #9a3412; }
+.srb-badge-misc         { background: #f0f0f0; color: #666; }
+
+.srb-empty { font-size: .85rem; color: var(--srb-t3); padding: 20px 0; }
+</style>
+{% endblock %}
+
+{% block body %}
+{% set typeMap = {
+    'article':       ['srb-badge-article',       'Article'],
+    'preprint':      ['srb-badge-preprint',       'Preprint'],
+    'book':          ['srb-badge-book',           'Book'],
+    'incollection':  ['srb-badge-incollection',   'Incollection'],
+    'inproceedings': ['srb-badge-inproceedings',  'Inproceedings'],
+    'proceedings':   ['srb-badge-proceedings',    'Proceedings'],
+    'thesis':        ['srb-badge-thesis',         'Thesis'],
+    'misc':          ['srb-badge-misc',           'Misc'],
+} %}
+
+<div class="srb-page">
+
+    <div class="srb-topbar">
+        <a href="{{ path('app_author_index') }}" class="srb-back">
+            <i class="bi bi-arrow-left"></i> Autores
+        </a>
+        {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_author_edit', {id: author.id}) }}" class="srb-action-btn">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+        {% endif %}
+    </div>
+
+    <h1 class="srb-author-name">{{ author.name }}</h1>
+    {% if author.alias %}
+    <p class="srb-author-alias">
+        {% for a in author.alias|split(';') %}
+            {% set av = a|trim %}
+            {% if av %}{{ av }}{% if not loop.last %} · {% endif %}{% endif %}
+        {% endfor %}
+    </p>
+    {% endif %}
+    <span class="srb-pub-count">{{ author.publications|length }} publicacion{{ author.publications|length != 1 ? 'es' : '' }}</span>
+
+    <hr class="srb-divider">
+
+    {% if author.publications|length > 0 %}
+    <table id="pubsTable">
+        <thead>
+            <tr><th>Título</th><th>Tipo</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for ref in author.publications %}
+        {% set typeCls   = typeMap[ref.type][0] ?? 'srb-badge-misc' %}
+        {% set typeLabel = typeMap[ref.type][1] ?? ref.type %}
+        {% set bparts = [] %}
+        {% if ref.type == 'article' %}
+            {% if ref.journal %}   {% set bparts = bparts|merge([ref.journal]) %} {% endif %}
+            {% if ref.volume %}    {% set bparts = bparts|merge(['Vol. ' ~ ref.volume]) %} {% endif %}
+            {% if ref.issue %}     {% set bparts = bparts|merge(['Issue ' ~ ref.issue]) %} {% endif %}
+            {% if ref.year %}      {% set bparts = bparts|merge([ref.year]) %} {% endif %}
+            {% if ref.pages %}     {% set bparts = bparts|merge(['p. ' ~ ref.pages]) %} {% endif %}
+        {% elseif ref.type == 'book' %}
+            {% if ref.publisher %} {% set bparts = bparts|merge([ref.publisher]) %} {% endif %}
+            {% if ref.placePub %}  {% set bparts = bparts|merge([ref.placePub]) %} {% endif %}
+            {% if ref.year %}      {% set bparts = bparts|merge([ref.year]) %} {% endif %}
+        {% elseif ref.type in ['inproceedings','proceedings'] %}
+            {% if ref.bookTitle %} {% set bparts = bparts|merge([ref.bookTitle]) %} {% endif %}
+            {% if ref.publisher %} {% set bparts = bparts|merge([ref.publisher]) %} {% endif %}
+            {% if ref.year %}      {% set bparts = bparts|merge([ref.year]) %} {% endif %}
+            {% if ref.pages %}     {% set bparts = bparts|merge(['p. ' ~ ref.pages]) %} {% endif %}
+        {% elseif ref.type == 'incollection' %}
+            {% if ref.bookTitle %} {% set bparts = bparts|merge([ref.bookTitle]) %} {% endif %}
+            {% if ref.editor %}    {% set bparts = bparts|merge(['Ed. ' ~ ref.editor]) %} {% endif %}
+            {% if ref.publisher %} {% set bparts = bparts|merge([ref.publisher]) %} {% endif %}
+            {% if ref.year %}      {% set bparts = bparts|merge([ref.year]) %} {% endif %}
+            {% if ref.pages %}     {% set bparts = bparts|merge(['p. ' ~ ref.pages]) %} {% endif %}
+        {% elseif ref.type == 'thesis' %}
+            {% if ref.school %}    {% set bparts = bparts|merge([ref.school]) %} {% endif %}
+            {% if ref.year %}      {% set bparts = bparts|merge([ref.year]) %} {% endif %}
+        {% else %}
+            {% if ref.year %}      {% set bparts = bparts|merge([ref.year]) %} {% endif %}
+        {% endif %}
+        <tr>
+            <td>
+                <a href="{{ path('app_reference_show', {id: ref.id}) }}" class="pub-title">{{ ref.title }}</a>
+                {% if bparts|length > 0 %}
+                <p class="pub-biblio">{{ bparts|join(', ') }}</p>
+                {% endif %}
+            </td>
+            <td><span class="srb-type-badge {{ typeCls }}">{{ typeLabel }}</span></td>
+            <td class="pub-year">{{ ref.year ?? '' }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="srb-empty">No hay publicaciones vinculadas a este autor.</p>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(function () {
+    $('#pubsTable').DataTable({
+        order: [[2, 'desc']],
+        pageLength: 10,
+        dom: '<"d-flex justify-content-between align-items-center mb-2"lf>t<"d-flex justify-content-between align-items-center mt-2"ip>',
+        language: {
+            search: 'Filtrar:',
+            lengthMenu: 'Mostrar _MENU_',
+            info: '_START_–_END_ de _TOTAL_',
+            infoEmpty: 'Sin registros',
+            zeroRecords: 'Sin resultados',
+            paginate: { first: '«', last: '»', next: '›', previous: '‹' },
+        },
+        columnDefs: [
+            { orderable: false, targets: 1 },
+            { visible: false, targets: 2 },
+        ],
+    });
+});
+</script>
+{% endblock %}

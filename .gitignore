@@ -1,0 +1,23 @@
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+# Archivos subidos por usuarios — solo se versionan la carpeta y su .htaccess
+/public/uploads/*
+!/public/uploads/.htaccess
+
+# IDEs, herramientas de desarrollo y sistema operativo
+.claude/
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
