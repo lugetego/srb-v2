@@ -64,7 +64,7 @@ class ReferenceController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}-{slug}', name: 'app_reference_show', methods: ['GET'])]
+    #[Route('/{id}-{slug}', name: 'app_reference_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Referencia $referencia, string $slug = ''): Response
     {
         return $this->render('reference/show.html.twig', ['ref' => $referencia]);
