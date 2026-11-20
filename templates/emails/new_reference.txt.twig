@@ -3,9 +3,6 @@ Sistema de Referencias Bibliográficas — CCM UNAM
 
 Se ha registrado una nueva publicación en el SRB.
 
-Usuario: {{ app.user ? app.user.username : '(desconocido)' }}
-Fecha:   {{ 'now'|date('Y-m-d H:i') }} (hora del servidor)
-
 ────────────────────────────────────────────────
 DATOS DE LA PUBLICACIÓN
 ────────────────────────────────────────────────
@@ -29,9 +26,7 @@ Año publicación: {{ ref.yearPub }}
 {% if ref.yearPreprint %}
 Año preprint:    {{ ref.yearPreprint }}
 {% endif %}
-{% if ref.reportNumber %}
-Identificador:   {{ ref.reportNumber }}
-{% endif %}
+
 
 {% if ref.journal %}
 Revista:  {{ ref.journal }}{% if ref.volume %}, Vol. {{ ref.volume }}{% endif %}{% if ref.issue %}, No. {{ ref.issue }}{% endif %}{% if ref.pages %}, pp. {{ ref.pages }}{% endif %}
@@ -104,7 +99,6 @@ ACCESO AL REGISTRO
 ────────────────────────────────────────────────
 
 Ver registro:   {{ url }}
-Editar registro: {{ editUrl }}
 
 ────────────────────────────────────────────────
 Centro de Ciencias Matemáticas — UNAM, Campus Morelia
